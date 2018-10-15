@@ -1,8 +1,6 @@
 from datetime import datetime
 import pandas as pd
-from Classes.Events import *
-from In_apps.In_apps import get_collection_category_language
-from In_apps.book_names import get_book_category_language
+from In_apps.In_apps import get_brand_lang
 from Classes.Events import *
 from Data import Parse
 from Classes.User import User
@@ -134,11 +132,11 @@ def new_report(os_list=["iOS", "Android"],
                 user_activity[Report.current_event.to_string()] = 1
 
             elif Report.current_event.__class__ is KC_TapBook:
-                brand, lang = get_collection_category_language(Report.current_event.obj_name)
+                brand, lang = get_brand_lang(Report.current_event.obj_name)
                 user_activity["Tap " + brand + " " + lang] = 1
 
             elif Report.current_event.__class__ is KC_ReadFree:
-                brand, lang = get_book_category_language(Report.current_event.obj_name)
+                brand, lang = get_brand_lang(Report.current_event.obj_name)
                 user_activity["Read " + brand + " " + lang] = 1
                 user_activity["Read free"] = 1
 
@@ -149,8 +147,8 @@ def new_report(os_list=["iOS", "Android"],
 
         for country in countries.keys():
             for install in Report.get_installs():
-                if install["country_iso_code"]==country:
-                    countries[country]["Users"]+=1
+                if install["country_iso_code"] == country:
+                    countries[country]["Users"] += 1
 
         df = pd.DataFrame(index=list(countries.keys()), columns=parameters)
         old_percent = 0
@@ -159,7 +157,7 @@ def new_report(os_list=["iOS", "Android"],
         for country in countries.keys():
             df.at[country, "Users"] = countries[country]["Users"]
             for param in activity_parameters:
-                new_percent = round(countries[country][ param] * 100 / df.at[country, "Users"], 1)
+                new_percent = round(countries[country][param] * 100 / df.at[country, "Users"], 1)
                 if "Enter" in param:
                     enter_shelf_percent = new_percent
                 if "Tap" in param:
@@ -167,8 +165,8 @@ def new_report(os_list=["iOS", "Android"],
                 difference = ""
                 if not ("Enter" in param or "free" in param or "Paying" in param):
                     difference = " (-" + str(round(abs(old_percent - new_percent), 1)) + "%)"
-                df.at[country, param] = str(countries[country][ param]) + " (" + str(
-                    round(countries[country][ param] * 100 / df.at[country, "Users"], 1)) + "%)" + difference
+                df.at[country, param] = str(countries[country][param]) + " (" + str(
+                    round(countries[country][param] * 100 / df.at[country, "Users"], 1)) + "%)" + difference
                 old_percent = new_percent
                 if "Empty" in param:
                     df.loc[country, param] = " " * 5

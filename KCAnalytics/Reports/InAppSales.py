@@ -112,7 +112,7 @@ def new_report(os_list=[ "iOS","Android"],
         # заполняем таблицы инфой об инаппах
         for locale in df_locales.keys():
             for in_app in in_app_locales[locale]:
-                df_locales[locale].at[in_app, "Brand"] = get_inapp_category(in_app)
+                df_locales[locale].at[in_app, "Brand"] = get_brand(in_app)
                 df_locales[locale].at[in_app, "Price"] = get_price(in_app)
                 df_locales[locale].fillna(0, inplace=True)
 
@@ -137,9 +137,9 @@ def new_report(os_list=[ "iOS","Android"],
             in_app = check_inapp_name(Report.current_event.obj_name)
             purchase_date = Report.current_event.datetime.date()
             month = Report.current_event.datetime.strftime("%m/%y")
-            brand = get_inapp_category(in_app)
+            brand = get_brand(in_app)
             pack = is_pack(in_app)
-            lang = get_inapp_language(in_app)
+            lang = get_lang(in_app)
 
             unique_inapps, first_purchase, df = in_app_locales[lang], first_purchase_locales[lang], df_locales[lang]
 

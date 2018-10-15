@@ -1,6 +1,6 @@
 import re
 from report_api.Report import Report
-from datetime import date
+from In_apps.book_names import books, free_books
 
 
 def get_price(in_app):
@@ -8,12 +8,6 @@ def get_price(in_app):
     TAX2 = 0.3
     in_app = check_inapp_name(in_app)
     if in_app in _in_apps.keys():
-        # Проверка того, что некоторые книги становились бесплатными
-        # Не будет работать, нужно передать дату события
-        # if in_app in ("fixies.cellphone", "spookystories.superstitiousgirl", "fixies.cellphone_eng",
-        #              "spookystories.superstitiousgirl_eng") and \
-        #                Report.Report.current_datetime.date() > date(2018, 7, 16):
-        #    return 0
         if _in_apps[in_app][Report.os.value]:
             price_type = Report.os.value % 2
             # return round((in_apps[obj_name][price_type] * ((1 - TAX1))) * (1 - TAX2), 1)
@@ -25,34 +19,55 @@ def get_price(in_app):
     return 0
 
 
-def get_inapp_category(in_app):
-    if in_app in _in_apps.keys():
-        return _in_apps[in_app][2]
+def get_brand(book):
+    if book in _in_apps.keys():
+        return _in_apps[book][2]
     else:
-        Report.not_found.add("Error getting category: No '"+ in_app+ "' in in-apps list.")
-        return None
+        for books_group in (books, _collections):
+            for brand, languages in books_group.items():
+                for lang, books_list in languages.items():
+                    if book in books_list:
+                        return brand
+
+    Report.not_found.add("Error getting category: No '" + book + "' in list.")
+    return None
 
 
-def get_collection_category_language(book):
-    for brand, languages in _collections.items():
-        for lang, collection in languages.items():
-            if book in collection:
-                return brand, lang
-        Report.not_found.add("Error getting category: No '"+ book+"' in collection list.")
+def get_lang(book):
+    if book in _in_apps.keys():
+        if re.match(r'.*\.eng$', book) or re.match(r'.*\_eng$', book):
+            return "eng"
+        else:
+            return "rus"
+    else:
+        for books_group in (books, _collections):
+            for brand, languages in books_group.items():
+                for lang, books_list in languages.items():
+                    if book in books_list:
+                        return lang
+
+    Report.not_found.add("Error getting language: No '" + book + "' in list.")
+    return None
+
+
+def get_brand_lang(book):
+    if book in _in_apps.keys():
+        return _in_apps[book][2], get_lang(book)
+    else:
+        for books_group in (books, _collections):
+            for brand, languages in books_group.items():
+                for lang, books_list in languages.items():
+                    if book in books_list:
+                        return brand, lang
+
+    Report.not_found.add("Error getting brand/lang: No '" + book + "' in list.")
     return "None", "None"
 
 
-def get_inapp_language(in_app):
-    if re.match(r'.*\.eng$', in_app) or re.match(r'.*\_eng$', in_app):
-        return "eng"
-    else:
-        return "rus"
-
-
 def check_inapp_name(in_app):
-    cat = get_inapp_category(in_app)
+    cat = get_brand(in_app)
     if not cat:
-        cat = get_collection_category_language(in_app)[0]
+        cat = get_brand_lang(in_app)[0]
     if not cat:
         Report.not_found.add("Error getting category: No '", in_app, "' in in-apps/collection list.")
     if re.match(r'.*\.eng$', in_app):
@@ -60,7 +75,7 @@ def check_inapp_name(in_app):
     if cat and cat != "coins" and not re.match(r'^' + cat + '.', in_app):
         return cat + '.' + in_app
     if cat is None:
-        print("Check_in_app_name. Cat is None:",cat, in_app)
+        Report.not_found.add("Check_in_app_name. Cat is None: " + cat + " " + in_app)
     return in_app
 
 
@@ -93,7 +108,19 @@ def get_brands_list():
 
 
 def is_pack(in_app):
-    return len(_in_apps[in_app]) >= 4 and _in_apps[in_app][3] == "pack"
+    if in_app in _in_apps.keys():
+        return len(_in_apps[in_app]) >= 4 and _in_apps[in_app][3] == "pack"
+    else:
+        Report.not_found.add("Error checking for pack. Not in in-apps list. " + in_app)
+        return False
+
+
+def is_free_book(book):
+    for brand, languages in free_books.items():
+        for lang, books_list in languages.items():
+            if book in books_list:
+                return True
+    return False
 
 
 # "brand.in_app name" : (price google play, price itunes)
@@ -523,13 +550,13 @@ _free_collections = {"mishki": {"rus": "mishki.starrysky", "eng": "mishki.starry
                      "omnom": {"rus": "omnom.christmas", "eng": "omnom.christmas_eng"}}
 
 
-def check_collection_name(book):
+def is_collection(book):
     for brand, languages in _collections.items():
         for language, collections in languages.items():
             if book in collections:
-                return book
-    Report.Report.not_found.add("No collection item found:"+ book)
-    return book
+                return True
+    # Report.Report.not_found.add("No collection item found:" + book)
+    return False
 
 
 def get_free_collections():

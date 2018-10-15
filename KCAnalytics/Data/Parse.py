@@ -1,6 +1,6 @@
 from Classes.Events import *
 import re
-from In_apps.book_names import is_free_book
+from In_apps.In_apps import is_free_book
 from report_api.Report import Report
 
 #@time_medium

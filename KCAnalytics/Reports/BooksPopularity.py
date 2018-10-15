@@ -1,8 +1,6 @@
 from datetime import datetime
 import pandas as pd
-from Classes.Events import *
-from In_apps.book_names import get_book_category_language
-from In_apps.In_apps import get_inapp_language, get_inapp_category
+from In_apps.In_apps import get_brand_lang
 from Classes.Events import *
 from Data import Parse
 from Classes.User import User
@@ -49,7 +47,6 @@ def new_report(os_list=["Android", "iOS"],
 
                                             ])
 
-
         # формируем таблицу отчета
         parameters = ["Price", "Brand", "Language", "Value 1", "Value 2"]
 
@@ -69,7 +66,6 @@ def new_report(os_list=["Android", "iOS"],
             if Report.is_new_user():
                 countries_popularity[user_country][period] += 1
                 user_country = None
-                previous_period = None
                 period = None
 
             if not user_country:
@@ -87,30 +83,24 @@ def new_report(os_list=["Android", "iOS"],
             if previous_period and previous_period != period:
                 countries_popularity[user_country][previous_period] += 1
 
+            brand, lang = get_brand_lang(Report.current_event.obj_name)
+            if None in (brand, lang):
+                continue
             if isinstance(Report.current_event, KC_ReadFree):
-                brand, lang = get_book_category_language(Report.current_event.obj_name)
-                if None in (brand, lang):
-                    continue
                 if brand not in countries[user_country][period]["free"]:
                     countries[user_country][period]["free"][brand] = {"rus": 0, "eng": 0}
                 countries[user_country][period]["free"][brand][lang] += 1
             elif isinstance(Report.current_event, KC_BuyEvent) or isinstance(Report.current_event, KC_ReadEvent):
                 category = ""
                 if isinstance(Report.current_event, KC_BuyEvent):
-                    brand = get_inapp_category(Report.current_event.obj_name)
-                    lang = get_inapp_language(Report.current_event.obj_name)
                     category = "paying"
                 elif isinstance(Report.current_event, KC_ReadEvent):
-                    brand, lang = get_book_category_language(Report.current_event.obj_name)
                     category = "read"
-                if None in (brand, lang):
-                    continue
                 if brand not in countries[user_country][period][category]:
                     countries[user_country][period][category][brand] = {"rus": {}, "eng": {}}
                 if Report.current_event.obj_name not in countries[user_country][period][category][brand][lang].keys():
                     countries[user_country][period][category][brand][lang][Report.current_event.obj_name] = 0
                 countries[user_country][period][category][brand][lang][Report.current_event.obj_name] += 1
-
 
         periods_list.sort()
         for country in countries.keys():
@@ -174,4 +164,3 @@ def new_report(os_list=["Android", "iOS"],
                 writer.save()
                 # print(df.to_string(index=False))
         print(OS.get_os_string(os), "done.")
-
