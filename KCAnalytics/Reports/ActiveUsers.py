@@ -167,7 +167,7 @@ def new_report(os_list=["Android", "iOS"],
             df.at[country, "Max time in app"] = max_time
         df = df.sort_values(by=["Users"], ascending=False)
 
-        writer = pd.ExcelWriter("ActiveUsers/" + OS.get_os_string(os) + " " + "ActiveUsers.xlsx")
+        writer = pd.ExcelWriter("Results/ActiveUsers/" + OS.get_os_string(os) + " " + "ActiveUsers.xlsx")
         df.to_excel(writer, " " + str(period_start) + "-" + str(period_end))
         writer.save()
 

@@ -370,11 +370,11 @@ def new_report(os_list=[ "iOS","Android"],
                     Report.draw_plot(range(0, days_since_install + 1),
                                      {OS.get_os_string(os) + " " + publisher + "_" + source + " ARPU": source_arpu_Y},
                                      show=False,
-                                     folder="Traffic Report")
+                                     folder="Results/Traffic Report")
                     Report.draw_plot(range(0, days_since_install + 1),
                                      {OS.get_os_string(os) + " " + publisher + "_" + source + " ROI": source_roi_Y,
                                       " ": [100] * (days_since_install + 1)}, show=False,
-                                     folder="Traffic Report")
+                                     folder="Results/Traffic Report")
 
                 # Расчет доп метрик
                 # ARPPU
@@ -452,7 +452,7 @@ def new_report(os_list=[ "iOS","Android"],
             plt.legend()
             title = OS.get_os_string(os) + " Прогноз ARPU по всем источникам " + publisher
             plt.title(title)
-            plt.savefig("Traffic Report/" + title + ".png", bbox_inches='tight')
+            plt.savefig("Results/Traffic Report/" + title + ".png", bbox_inches='tight')
             # plt.show()
             plt.close()
 

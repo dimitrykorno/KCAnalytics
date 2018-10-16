@@ -1,6 +1,6 @@
 from datetime import datetime
 import pandas as pd
-from In_apps.In_apps import get_brand_lang
+from In_apps.Shop import get_brand_lang
 from Classes.Events import *
 from Data import Parse
 from Classes.User import User
@@ -86,15 +86,15 @@ def new_report(os_list=["Android", "iOS"],
             brand, lang = get_brand_lang(Report.current_event.obj_name)
             if None in (brand, lang):
                 continue
-            if isinstance(Report.current_event, KC_ReadFree):
+            if isinstance(Report.current_event, KCReadFree):
                 if brand not in countries[user_country][period]["free"]:
                     countries[user_country][period]["free"][brand] = {"rus": 0, "eng": 0}
                 countries[user_country][period]["free"][brand][lang] += 1
-            elif isinstance(Report.current_event, KC_BuyEvent) or isinstance(Report.current_event, KC_ReadEvent):
+            elif isinstance(Report.current_event, KCBuyEvent) or isinstance(Report.current_event, KCReadEvent):
                 category = ""
-                if isinstance(Report.current_event, KC_BuyEvent):
+                if isinstance(Report.current_event, KCBuyEvent):
                     category = "paying"
-                elif isinstance(Report.current_event, KC_ReadEvent):
+                elif isinstance(Report.current_event, KCReadEvent):
                     category = "read"
                 if brand not in countries[user_country][period][category]:
                     countries[user_country][period][category][brand] = {"rus": {}, "eng": {}}
@@ -105,7 +105,7 @@ def new_report(os_list=["Android", "iOS"],
         periods_list.sort()
         for country in countries.keys():
 
-            writer = pd.ExcelWriter("BooksPopularity/" + OS.get_os_string(os) + " " + country + ".xlsx")
+            writer = pd.ExcelWriter("Results/BooksPopularity/" + OS.get_os_string(os) + " " + country + ".xlsx")
             for period in periods_list:
                 if period not in countries_popularity[country].keys() or countries_popularity[country][period] < 100:
                     continue

@@ -1,6 +1,6 @@
 from datetime import datetime
 import pandas as pd
-from In_apps.In_apps import get_brand_lang
+from In_apps.Shop import get_brand_lang
 from Classes.Events import *
 from Data import Parse
 from Classes.User import User
@@ -128,19 +128,19 @@ def new_report(os_list=["iOS", "Android"],
                 flush_user_info()
                 user_activity = dict.fromkeys(activity_parameters, 0)
 
-            if Report.current_event.__class__ is KC_TapShelf:
+            if Report.current_event.__class__ is KCTapShelf:
                 user_activity[Report.current_event.to_string()] = 1
 
-            elif Report.current_event.__class__ is KC_TapBook:
+            elif Report.current_event.__class__ is KCTapBook:
                 brand, lang = get_brand_lang(Report.current_event.obj_name)
                 user_activity["Tap " + brand + " " + lang] = 1
 
-            elif Report.current_event.__class__ is KC_ReadFree:
+            elif Report.current_event.__class__ is KCReadFree:
                 brand, lang = get_brand_lang(Report.current_event.obj_name)
                 user_activity["Read " + brand + " " + lang] = 1
                 user_activity["Read free"] = 1
 
-            elif Report.current_event.__class__ is KC_BuyEvent:
+            elif Report.current_event.__class__ is KCBuyEvent:
                 user_activity["Paying"] = 1
 
         flush_user_info()
@@ -171,7 +171,7 @@ def new_report(os_list=["iOS", "Android"],
                 if "Empty" in param:
                     df.loc[country, param] = " " * 5
         df = df.sort_values(by=["Users"], ascending=False)
-        writer = pd.ExcelWriter("UserActivity/" + OS.get_os_string(os) + " " + "UserActivity.xlsx")
+        writer = pd.ExcelWriter("Results/UserActivity/" + OS.get_os_string(os) + " " + "UserActivity.xlsx")
         df.to_excel(writer, str(period_start) + "-" + str(period_end))
         writer.save()
 
