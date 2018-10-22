@@ -2,71 +2,74 @@ from Classes.Events import *
 import re
 from In_apps.Shop import is_free_book, get_price
 from report_api.Report import Report
+from report_api.Utilities.Utils import time_medium_2
 
 
-# @time_medium
+@time_medium_2
 def parse_event(event_name, event_json=None, datetime=None):
     # парсинг событий чтения
-    if re.match(r'^read_book_.+', event_name):
+    # if re.match(r'^read_book_.+', event_name):
+    if event_name.startswith('read_book_'):
         if is_free_book(event_name[10:]):
             return KCReadFree(event_name[10:], datetime)
         return KCReadEvent(event_name[10:], datetime)
 
         # парсинг событий входа на полку
-    elif re.match(r'.+_ban_mainmenu', event_name):
+    # elif re.match(r'.+_ban_mainmenu', event_name):
+    elif event_name.endswith('_ban_mainmenu'):
         return KCTapShelf(event_name[4:-13], datetime)
 
     # парсинг событий тапа по книге
-    elif re.match(r'^tap_.+_ban_.+', event_name):
+    elif event_name[-7:] in ("_ban_ru", "_ban_en"):
         return KCTapBook(event_name[4:-7], datetime)
-    elif re.match(r'tap_.+_book_.+', event_name):
+    elif event_name[-8:] in ("_book_ru", "_book_en"):
         return KCTapBook(event_name[4:-8], datetime)
-    elif re.match(r'tap_.+_games_.+', event_name):
+    elif event_name[-9:] in ("_games_ru", "_games_en"):
         return KCTapBook(event_name[4:-9], datetime)
 
 
 
     # парсинг событий покупки с баннера
-    elif re.match(r'^tap_buy_banner_.+', event_name):
+    elif event_name.startswith('tap_buy_banner_'):
 
         if not event_json:
             return KCBuyEvent(purchase=event_name[15:], datetime=datetime, status="NoJSON",
                               price=get_price(event_name[15:]))
-        elif re.match(r'.*cancel.*', event_json):
-            return KCBuyCancel(purchase=event_name[15:], datetime=datetime, status="NoJSON",
+        elif event_json == '{"status":"canceled"}':
+            return KCBuyCancel(purchase=event_name[15:], datetime=datetime, status="Cancel",
                                price=get_price(event_name[15:]))
-        elif re.match(r'.*failed.*', event_json):
-            return KCBuyFailed(purchase=event_name[15:], datetime=datetime, status="NoJSON",
+        elif event_json == '{"status":"failed"}':
+            return KCBuyFailed(purchase=event_name[15:], datetime=datetime, status="Fail",
                                price=get_price(event_name[15:]))
-        elif re.match(r'.*tap.*', event_json):
+        elif event_json == '{"status":"tap"}':
             return KCBuyTap(bought_object=event_name[15:], datetime=datetime)
-        elif re.match(r'.*success.*', event_json):
-            return KCBuyEvent(purchase=event_name[15:], datetime=datetime, status="NoJSON",
+        elif event_json == '{"status":"success"}':
+            return KCBuyEvent(purchase=event_name[15:], datetime=datetime, status="Success",
                               price=get_price(event_name[15:]))
 
     # парсинг событий покупки
-    elif re.match(r'^tap_ buy_.+', event_name):
+    elif event_name.startswith('tap_ buy_'):
 
         if not event_json:
             return KCBuyEvent(purchase=event_name[9:], datetime=datetime, status="NoJSON",
                               price=get_price(event_name[9:]))
-        elif re.match(r'.*cancel.*', event_json):
-            return KCBuyCancel(purchase=event_name[9:], datetime=datetime, status="NoJSON",
+        elif event_json == '{"status":"canceled"}':
+            return KCBuyCancel(purchase=event_name[9:], datetime=datetime, status="Cancel",
                                price=get_price(event_name[9:]))
-        elif re.match(r'.*failed.*', event_json):
-            return KCBuyFailed(purchase=event_name[9:], datetime=datetime, status="NoJSON",
+        elif event_json == '{"status":"failed"}':
+            return KCBuyFailed(purchase=event_name[9:], datetime=datetime, status="Fail",
                                price=get_price(event_name[9:]))
-        elif re.match(r'.*tap.*', event_json):
+        elif event_json == '{"status":"tap"}':
             return KCBuyTap(bought_object=event_name[9:], datetime=datetime)
-        elif re.match(r'.*success.*', event_json):
-            return KCBuyEvent(purchase=event_name[9:], datetime=datetime, status="NoJSON",
+        elif event_json == '{"status":"success"}':
+            return KCBuyEvent(purchase=event_name[9:], datetime=datetime, status="Success",
                               price=get_price(event_name[9:]))
 
     elif event_name == 'parent_gate_passed':
         return KCParentGate(datetime)
 
     # парсинг событий сбора подарка
-    elif re.match(r'^Tap_present', event_name):
+    elif event_name == "Tap_present":
         return KCTapPresent(datetime)
 
     else:

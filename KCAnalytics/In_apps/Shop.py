@@ -1,6 +1,9 @@
 import re
 from report_api.Report import Report
-from In_apps.book_names import books, free_books
+from In_apps.book_names import BooksShelf
+from report_api.Utilities.Utils import time_medium
+from report_api.Classes.Events import PurchaseEvent
+from Classes.Events import *
 
 
 def get_price(in_app):
@@ -20,10 +23,10 @@ def get_price(in_app):
 
 
 def get_brand(book):
-    if book in _in_apps.keys():
+    if book in _in_apps:
         return _in_apps[book][2]
     else:
-        for books_group in (books, _collections):
+        for books_group in (BooksShelf.books, BooksShelf.collections):
             for brand, languages in books_group.items():
                 for lang, books_list in languages.items():
                     if book in books_list:
@@ -34,13 +37,13 @@ def get_brand(book):
 
 
 def get_lang(book):
-    if book in _in_apps.keys():
+    if book in _in_apps:
         if re.match(r'.*\.eng$', book) or re.match(r'.*\_eng$', book):
             return "eng"
         else:
             return "rus"
     else:
-        for books_group in (books, _collections):
+        for books_group in (BooksShelf.books, BooksShelf.collections):
             for brand, languages in books_group.items():
                 for lang, books_list in languages.items():
                     if book in books_list:
@@ -50,24 +53,60 @@ def get_lang(book):
     return None
 
 
-def get_brand_lang(book):
-    if book in _in_apps.keys():
+def get_brand_lang_inapp(book):
+    if book in _in_apps:
         return _in_apps[book][2], get_lang(book)
-    else:
-        for books_group in (books, _collections):
-            for brand, languages in books_group.items():
-                for lang, books_list in languages.items():
-                    if book in books_list:
-                        return brand, lang
+    Report.not_found.add("Error getting inapp brand/lang: No '" + book + "' in list.")
+    return "None", "None"
 
-    Report.not_found.add("Error getting brand/lang: No '" + book + "' in list.")
+
+def get_brand_lang_book(book):
+    if not BooksShelf.inverted_books_dict:
+        BooksShelf.create_inverted_books_dict()
+    if book in BooksShelf.inverted_books_dict:
+        return BooksShelf.inverted_books_dict[book]
+
+    if not BooksShelf.inverted_collection_dict:
+        BooksShelf.create_inverted_collection_dict()
+    if book in BooksShelf.inverted_collection_dict:
+        return BooksShelf.inverted_collection_dict[book]
+
+    Report.not_found.add("Error getting book brand/lang: No '" + book + "' in list.")
+    return "None", "None"
+
+
+def get_brand_lang_free_book(book):
+    if not BooksShelf.inverted_free_books_dict:
+        BooksShelf.create_inverted_books_dict()
+    if book in BooksShelf.inverted_books_dict:
+        return BooksShelf.inverted_books_dict[book]
+
+    Report.not_found.add("Error getting free book brand/lang: No '" + book + "' in list.")
+    return "None", "None"
+
+
+def get_brand_lang(book):
+    if book in _in_apps:
+        return _in_apps[book][2], get_lang(book)
+
+    if not BooksShelf.inverted_books_dict:
+        BooksShelf.create_inverted_books_dict()
+    if book in BooksShelf.inverted_books_dict:
+        return BooksShelf.inverted_books_dict[book]
+
+    if not BooksShelf.inverted_collection_dict:
+        BooksShelf.create_inverted_collection_dict()
+    if book in BooksShelf.inverted_collection_dict:
+        return BooksShelf.inverted_collection_dict[book]
+
+    Report.not_found.add("Error getting book brand/lang: No '" + book + "' in list.")
     return "None", "None"
 
 
 def check_inapp_name(in_app):
     cat = get_brand(in_app)
     if not cat:
-        cat = get_brand_lang(in_app)[0]
+        cat = get_brand_lang_inapp(in_app)[0]
     if not cat:
         Report.not_found.add("Error getting category: No '", in_app, "' in in-apps/collection list.")
     if re.match(r'.*\.eng$', in_app):
@@ -116,7 +155,7 @@ def is_pack(in_app):
 
 
 def is_free_book(book):
-    for brand, languages in free_books.items():
+    for brand, languages in BooksShelf.free_books.items():
         for lang, books_list in languages.items():
             if book in books_list:
                 return True
@@ -465,93 +504,16 @@ _in_apps = {
     "44000": (899, 999, "coins"),
     "coins.44000.ny": (459, 459, "coins")}
 
-# ____________________ ////////////////////// Коллекции //////////////////////_________________________
-_collections = {"mishki": {
-    "eng": {  # "cureoftreesndomovoy_eng", "oldfoodandharvestfight_eng", "travelandreminder_eng",
-        # "mushroomsnleavesnphotohunt_eng", "bebebears_soon_eng", " mishki.insomnia_eng",
-        # "3in1_eng", "5in1_eng", "7in1_eng",
-        # "9in1_eng",
-        "mishki.domovoy_eng", "mishki.cureoftrees_eng",
-        "mishki.harvestfight_eng", "mishki.oldfood_eng", "mishki.reminder_eng",
-        "mishki.travel_eng", "mishki.photohunt_eng", "mishki.mushroomsnleaves_eng",
-        "mishki.starrysky_eng", "starrysky_eng", },
-    "rus": {"mishki.starrysky", "starrysky", "mishki.mushroomsnleaves", "mishki.photohunt",
-            "mishki.travel", "mishki.bestreminder", "bestreminder", "mishki.oldfood",
-            "mishki.harvestfight", " mishki.cureoftrees", "mishki.brownie", "brownie",
-            "mishki.insomnia", "mishki.warming", "mishki.gardeners",
-            "mishki.honeystory", "soon",
-            # "10in1",
-            # "9in1", "8in1", "7in1",
-            # "6in1", "4in1", "3in1",
-            # "mushroomsnleavesnphotohunt", "mushroomsnleavesntravel", "photohuntntravel",
-            # "oldfoodnharvestfight", "curetreendomovoy", "insomnianwarming",
-            # "gardenersnhoney"
-            }},
-    "fixies": {
-        "eng": {  # "shortcircuitnflashlight_eng", "reflexesncompass_eng", "washingmachinensolarbattery_eng",
-            # "fixies.3in1_eng", "fixies.4in1_eng", "fixies.5in1_eng",
-            # "fixies.6in1_eng", "fixies.7in1_eng", "fixies.9in1_eng",
-            "fixies_soon_eng", "fixies.stapler_eng", "fixies.flashlight_eng",
-            "fixies.shortcircuit_eng", "fixies.compass_eng", "fixies.reflexes_eng",
-            "fixies.solarbattery_eng", "fixies.washingmachine_eng", "washingmachine_eng", "fixies.holodilnik_eng",
-            "holodilnik_eng",
-            "fixies.lift_eng", "fixies.cellphone_eng"},
-        "rus": {  # "fixies.10in1", "fixies.9in1", "fixies.7in1",
-            # "fixies.6in1", "fixies.6in1.withoutElevator", "fixies.5in1",
-            # "fixies.4in1", "fixies.3in1", "fixies.3in1.withoutElevator",
-            # "staplerncellphone", "shortcircuitnflashlight", "reflexesncompass",
-            # "washingmachinensolarbattery", "liftnrefrigerator",
-            "soon",
-            "fixies.stapler", "fixies.flashlight", "fixies.shortcircuit",
-            "fixies.compass", "fixies.reflexes", "fixies.solarbattery",
-            "fixies.washingmachine", "fixies.holodilnik", "holodilnik", "fixies.lift", "fixies.cellphone"}},
 
-    "spookystories": {
-        "eng": {  # "plantmonstersnkitten_eng", "spookystories.3in1_eng", "spookystories.4in1_eng",
-            # "spookystories.5in1_eng",
-            "masha_soon_eng", "spookystories.newyear_eng",
-            "spookystories.kitten_eng", "spookystories.aboutmonsters_eng", "aboutmonsters_eng",
-            "spookystories.boyandwater_eng", "boyandwater_eng",
-            "spookystories.aboutbug_eng", "spookystories.superstitiousgirl_eng"},
-        "rus": {  # "spookystories.6in1", "spookystories.5in1", "spookystories.4in1",
-            # "spookystories.3in1", "plantmonstersnkitten",
-            "bugandboy",
-            "soon", "spookystories.superstitiousgirl", "spookystories.newyear",
-            "spookystories.kitten", "spookystories.aboutmonsters", "aboutmonsters", "spookystories.boyandwater",
-            "spookystories.aboutbug", "aboutbug"}},
-
-    "omnom": {"eng": {"omnom_soon", "omnom.yarmarka_eng", "omnom.christmas_eng",
-                      "omnom.australia_eng", "omnom.brazil_eng",
-                      # "omnom.3in1_eng", "omnom.australianbrazil_eng"
-                      },
-
-              "rus": {  # "omnom.3in1", "omnom.australianbrazil", "omnom.10in1",
-                  # "omnom.mexiconusa","omnom.sportshopping"
-                  "christmas.yarmarka",
-                  "soon", "omnom.brazil", "omnom.australia",
-                  "omnom.yarmarka", "omnom.christmas", "omnom.tea",
-                  "omnom.sport", "omnom.velogonka", "omnom.receipt",
-                  "omnom.shopping", "omnom.mexico"
-                                    "omnom.usa"}},
-
-    "trikota": {"eng": {},
-                "rus": {  # "trikota.3in1", "trikota.otkritkankino",
-                    "soon",
-                    "trikota.velosiped", "trikota.kinoshedevr", "trikota.otkritka",
-                    "trikota.varenie"}},
-
-}
-
-_free_collections = {"mishki": {"rus": "mishki.starrysky", "eng": "mishki.starrysky_eng"},
-                     "fixies": {"rus": "fixies.cellphone", "eng": "fixies.cellphone_eng"},
-                     "spookystories": {"rus": "spookystories.superstitiousgirl",
-                                       "eng": "spookystories.superstitiousgirl_eng"},
-                     "trikota": {"rus": "trikota.varenie"},
-                     "omnom": {"rus": "omnom.christmas", "eng": "omnom.christmas_eng"}}
+def is_inapp(in_app):
+    if in_app in _in_apps:
+        return True
+    else:
+        return False
 
 
 def is_collection(book):
-    for brand, languages in _collections.items():
+    for brand, languages in BooksShelf.collections.items():
         for language, collections in languages.items():
             if book in collections:
                 return True
@@ -560,11 +522,11 @@ def is_collection(book):
 
 
 def get_free_collections():
-    return _free_collections
+    return BooksShelf.free_collections
 
 
 def is_free_collection(book):
-    for brand, languages in _free_collections.items():
+    for brand, languages in BooksShelf.free_collections.items():
         for language, collection in languages.items():
             if collection == book:
                 return True

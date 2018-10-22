@@ -6,7 +6,7 @@ from Data import Parse
 from Classes.User import User
 from report_api.Report import Report
 from report_api.OS import OS
-from report_api.Utilities.Utils import time_count
+from report_api.Utilities.Utils import time_count, get_medium_time
 
 app = "kc"
 
@@ -119,6 +119,7 @@ def new_report(os_list=["Android", "iOS"],
                 time_in_app_regular[Report.previous_user.country].append(play_time)
             countries[Report.previous_user.country]["Users"] += 1
 
+        print("medium %.10s %.10s" % get_medium_time())
         # ЦИКЛ ОБРАБОТКИ СОБЫТИЙ
         while Report.get_next_event():
             if Report.get_time_since_install(measure="day") < days_after_install:

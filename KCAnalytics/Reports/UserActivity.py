@@ -1,12 +1,12 @@
 from datetime import datetime
 import pandas as pd
-from In_apps.Shop import get_brand_lang
+from In_apps.Shop import get_brand_lang_book
 from Classes.Events import *
 from Data import Parse
 from Classes.User import User
 from report_api.Report import Report
 from report_api.OS import OS
-from report_api.Utilities.Utils import time_count
+from report_api.Utilities.Utils import time_count,get_medium_time
 
 app = "kc"
 
@@ -122,7 +122,7 @@ def new_report(os_list=["iOS", "Android"],
                 countries[previous_country][param] += user_activity[param]
 
         while Report.get_next_event():
-            previous_country = Report.previous_user.country
+            previous_country = Report.current_user.country
 
             if Report.is_new_user():
                 flush_user_info()
@@ -132,11 +132,11 @@ def new_report(os_list=["iOS", "Android"],
                 user_activity[Report.current_event.to_string()] = 1
 
             elif Report.current_event.__class__ is KCTapBook:
-                brand, lang = get_brand_lang(Report.current_event.obj_name)
+                brand, lang = get_brand_lang_book(Report.current_event.obj_name)
                 user_activity["Tap " + brand + " " + lang] = 1
 
             elif Report.current_event.__class__ is KCReadFree:
-                brand, lang = get_brand_lang(Report.current_event.obj_name)
+                brand, lang = get_brand_lang_book(Report.current_event.obj_name)
                 user_activity["Read " + brand + " " + lang] = 1
                 user_activity["Read free"] = 1
 
@@ -144,7 +144,7 @@ def new_report(os_list=["iOS", "Android"],
                 user_activity["Paying"] = 1
 
         flush_user_info()
-
+        print("medium %.10s %.10s" % get_medium_time())
         for country in countries.keys():
             for install in Report.get_installs():
                 if install["country_iso_code"] == country:
@@ -155,6 +155,9 @@ def new_report(os_list=["iOS", "Android"],
         enter_shelf_percent = 0
         # рисуем проценты
         for country in countries.keys():
+            if countries[country]["Users"] == 0:
+                print("*Strange* No users from", country)
+                continue
             df.at[country, "Users"] = countries[country]["Users"]
             for param in activity_parameters:
                 new_percent = round(countries[country][param] * 100 / df.at[country, "Users"], 1)
