@@ -3,11 +3,8 @@ from report_api.Report import get_timediff
 
 class User:
     def __init__(self, id_2, id_1=None):
-        if id_1:
-            self.user_id = id_1
-        else:
-            self.user_id = id_2
 
+        self.user_id = id_1 if id_1 else id_2
         self.first_session = True
         self.install_date = None
         self.publisher = None

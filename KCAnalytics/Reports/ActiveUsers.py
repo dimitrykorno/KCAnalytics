@@ -88,9 +88,9 @@ def new_report(os_list=["Android", "iOS"],
         # Перемещение данных пользователя в отчет
         def flush_user_info():
 
-            if Report.previous_user.country not in countries.keys():
+            if Report.previous_user.country not in countries:
                 countries[Report.previous_user.country] = dict.fromkeys(parameters, 0)
-            if Report.previous_user.country not in time_in_app.keys():
+            if Report.previous_user.country not in time_in_app:
                 time_in_app[Report.previous_user.country] = []
                 time_in_app_regular[Report.previous_user.country] = []
 
@@ -145,7 +145,7 @@ def new_report(os_list=["Android", "iOS"],
         flush_user_info()
 
         df = pd.DataFrame(index=list(countries.keys()), columns=parameters)
-        for country in countries.keys():
+        for country in countries:
 
             for param in parameters:
                 df.at[country, param] = countries[country][param]

@@ -77,9 +77,9 @@ def get_brand_lang_book(book):
 
 def get_brand_lang_free_book(book):
     if not BooksShelf.inverted_free_books_dict:
-        BooksShelf.create_inverted_books_dict()
-    if book in BooksShelf.inverted_books_dict:
-        return BooksShelf.inverted_books_dict[book]
+        BooksShelf.create_inverted_free_books_dict()
+    if book in BooksShelf.inverted_free_books_dict:
+        return BooksShelf.inverted_free_books_dict[book]
 
     Report.not_found.add("Error getting free book brand/lang: No '" + book + "' in list.")
     return "None", "None"
@@ -88,6 +88,11 @@ def get_brand_lang_free_book(book):
 def get_brand_lang(book):
     if book in _in_apps:
         return _in_apps[book][2], get_lang(book)
+
+    if not BooksShelf.inverted_free_books_dict:
+        BooksShelf.create_inverted_free_books_dict()
+    if book in BooksShelf.inverted_free_books_dict:
+        return BooksShelf.inverted_free_books_dict[book]
 
     if not BooksShelf.inverted_books_dict:
         BooksShelf.create_inverted_books_dict()
@@ -155,10 +160,12 @@ def is_pack(in_app):
 
 
 def is_free_book(book):
-    for brand, languages in BooksShelf.free_books.items():
-        for lang, books_list in languages.items():
-            if book in books_list:
-                return True
+    try:
+        if book in BooksShelf.inverted_free_books_dict:
+            return True
+    except:
+        if not BooksShelf.inverted_free_books_dict:
+            BooksShelf.create_inverted_free_books_dict()
     return False
 
 
