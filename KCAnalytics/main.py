@@ -1,5 +1,5 @@
 from report_api.Menu import menu
-from Reports import InAppSales, UserActivity, ActiveUsers, CumulativeROI, BooksPopularity, SalesGraphs
+from Reports import InAppSales, ContentActivity, ActiveUsers, CumulativeROI, BooksPopularity, SalesGraphs, LifetimeHistogram
 
 # import timeit
 #
@@ -12,10 +12,11 @@ from Reports import InAppSales, UserActivity, ActiveUsers, CumulativeROI, BooksP
 reports = [
     ("1. Отчёт по продажам", InAppSales.new_report),
     ("2. Графики спроса", SalesGraphs.new_report),
-    ("3. Активность пользователей по странам", UserActivity.new_report),
+    ("3. Использование контента пользователями", ContentActivity.new_report),
     ("4. Часто заходящие пользователи", ActiveUsers.new_report),
     ("5. Накопительный ROI", CumulativeROI.new_report),
-    ("6. Популярность книг", BooksPopularity.new_report)
+    ("6. Популярность книг", BooksPopularity.new_report),
+    ("7. Гистограма лайфтайма", LifetimeHistogram.new_report)
 ]
 
 menu(reports)
