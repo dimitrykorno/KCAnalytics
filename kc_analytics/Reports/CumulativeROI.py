@@ -14,7 +14,8 @@ def new_report(os_list=["iOS","Android"],
                max_version=None,
                countries_list=[]):
     dir = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)).replace("\\", "/")
-    events_list = [(["tap\_ buy\_%", "tap\_buy\_banner%"], "%success%")]
+    events_list = [(["TapBuyBookForMoney","TapBuyCoins","TapBuyStore"], "%success%"),
+                   ("SubscriptionPaymentFromServer",)]
     CumulativeROI.new_report(parser=Parse,
                              user_class=User,
                              app="kc",
