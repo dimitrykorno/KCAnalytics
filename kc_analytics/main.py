@@ -1,5 +1,5 @@
-from report_api.Menu import menu
-from Reports import InAppSales, ContentActivity, ActiveUsers, CumulativeROI, BooksPopularity, SalesGraphs, LifetimeHistogram
+from report_api.Menu import Menu
+from Reports import InAppSales, ContentActivity, ActiveUsers, CumulativeROI, BooksPopularity, SalesGraphs_TOREMOVE, LifetimeHistogram
 
 # import timeit
 #
@@ -11,7 +11,7 @@ from Reports import InAppSales, ContentActivity, ActiveUsers, CumulativeROI, Boo
 
 reports = [
     ("1. Отчёт по продажам", InAppSales.new_report),
-    ("2. Графики спроса", SalesGraphs.new_report),
+    ("2. Графики спроса", SalesGraphs_TOREMOVE.new_report),
     ("3. Использование контента пользователями", ContentActivity.new_report),
     ("4. Часто заходящие пользователи", ActiveUsers.new_report),
     ("5. Накопительный ROI", CumulativeROI.new_report),
@@ -19,4 +19,32 @@ reports = [
     ("7. Гистограма лайфтайма", LifetimeHistogram.new_report)
 ]
 
-menu(reports)
+if __name__ == '__main__':
+    #отчет для ручного исполнения
+    Menu.menu_handsmode(reports)
+
+
+#функции для бота
+def get_menu():
+    return Menu.get_menu(reports)
+
+def get_reports_number():
+    return len(reports)
+
+def get_report_name(rep_num):
+    return " ".join(reports[rep_num - 1][0].split(".")[1].split())
+
+def get_settings_str(rep_num, defaults=None):
+    return Menu.get_settings_str(reports, rep_num, defaults)
+
+
+def get_defaults(rep_num):
+    return Menu.get_defaults(reports, rep_num)
+
+
+def parse_value(value, default, type):
+    return Menu.parse_value(value, default, type)
+
+
+def execute_report(user,rep_num, settings):
+    return Menu.execute_report(reports, rep_num, settings,user)
