@@ -7,7 +7,7 @@ from Classes.User import User
 from report_api.Report import Report
 from report_api.OS import OS
 from report_api.Utilities.Utils import time_count, get_medium_time, try_save_writer, check_folder, check_arguments
-
+import os
 app = "kc"
 
 
@@ -35,7 +35,6 @@ def new_report(os_list=["iOS", "Android"],
         period_end = datetime.strptime(period_end, "%Y-%m-%d").date()
 
     for os_str in os_list:
-        os = OS.get_os(os_str)
 
         Report.set_app_data(parser=Parse, event_class=Event, user_class=User, os=os_str, app=app,
                             user_status_check=False)
@@ -149,7 +148,7 @@ def new_report(os_list=["iOS", "Android"],
             sorted_countries.append("RU")
         sorted_countries += [c for c in countries.keys() if c not in ("total", "RU")]
 
-        filename = folder_dest + OS.get_os_string(os) + " Total Funnel.xlsx"
+        filename = folder_dest + os_str + " Total Funnel.xlsx"
         writer = pd.ExcelWriter(filename)
         # рисуем проценты и записываем в таблицы
         for country in sorted_countries:
@@ -187,6 +186,6 @@ def new_report(os_list=["iOS", "Android"],
             df_cumulative.to_excel(writer, sheet_name=country)
             df_sections.to_excel(writer, sheet_name=country, startrow=4)
         try_save_writer(writer, filename)
-        result_files.append(filename)
+        result_files.append(os.path.abspath(filename))
 
     return result_files

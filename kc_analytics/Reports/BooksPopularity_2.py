@@ -8,7 +8,7 @@ from report_api.Report import Report
 from report_api.OS import OS
 from report_api.Utilities.Utils import time_count, get_medium_time, get_medium_time_2, check_arguments, check_folder, \
     try_save_writer
-import time
+import os
 
 app = "kc"
 
@@ -34,7 +34,6 @@ def new_report(os_list=["Android"],
         period_end = datetime.strptime(period_end, "%Y-%m-%d").date()
 
     for os_str in os_list:
-        os = OS.get_os(os_str)
 
         Report.set_app_data(parser=Parse, event_class=Event, user_class=User, os=os_str, app=app,
                             user_status_check=False)
@@ -95,7 +94,7 @@ def new_report(os_list=["Android"],
         periods_list = list(periods_list)
         periods_list.sort()
         for country in countries:
-            filename = folder_dest + OS.get_os_string(os) + " " + country + ".xlsx"
+            filename = folder_dest + os_str + " " + country + ".xlsx"
             writer = pd.ExcelWriter(filename)
             for period in periods_list:
                 if period not in countries_popularity[country] or len(
@@ -133,7 +132,7 @@ def new_report(os_list=["Android"],
                 df_free.to_excel(writer, str(period).replace("/", "."), index=False)
                 df_reading.to_excel(writer, str(period).replace("/", "."), index=False, startrow=df_free.shape[0] + 2)
                 try_save_writer(writer, filename)
-                result_files.append(filename)
+                result_files.append(os.path.abspath(filename))
         if len(result_files) > 5 and countries_list==[]:
             result_files = [file for file in result_files if "total" in file or "RU" in file]
         return errors, result_files

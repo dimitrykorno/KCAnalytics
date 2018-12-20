@@ -180,5 +180,5 @@ def new_report(os_list=["Android", "iOS"],
         writer = pd.ExcelWriter(filename)
         df.to_excel(writer, " " + str(period_start) + "-" + str(period_end))
         try_save_writer(writer,filename)
-
+        result_files.append(os.path.abspath(filename))
     return errors, result_files
