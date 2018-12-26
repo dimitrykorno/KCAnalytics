@@ -12,6 +12,9 @@ class KCEvent(Event):
     def to_string(self):
         return "Other event: " + str(self.obj_name)
 
+class KCSubStart(KCEvent):
+    def __init__(self, sub_name, datetime):
+        super().__init__(sub_name, datetime)
 
 class KCReadEvent(KCEvent):
     def __init__(self, book_name, datetime):

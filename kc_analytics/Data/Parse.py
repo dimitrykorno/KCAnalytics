@@ -66,6 +66,9 @@ def parse_event(event_name, event_json=None, datetime=None):
     elif event_name == 'parent_gate_passed':
         return KCParentGate(datetime)
 
+    elif "subscription" in event_name:
+        return KCSubStart(sub_name=event_name[29:],datetime=datetime)
+
     # парсинг событий сбора подарка
     elif event_name == "Tap_present":
         return KCTapPresent(datetime)
