@@ -14,6 +14,9 @@ def parse_event(event_name, event_json=None, datetime=None):
             return KCReadFree(book, datetime)
         return KCReadEvent(book, datetime)
 
+    elif "subscription" in event_name:
+        return KCSubStart(sub_name=event_name[30:], datetime=datetime)
+
         # парсинг событий входа на полку
     # elif re.match(r'.+_ban_mainmenu', event_name):
     elif event_name.endswith('_ban_mainmenu'):
@@ -66,8 +69,7 @@ def parse_event(event_name, event_json=None, datetime=None):
     elif event_name == 'parent_gate_passed':
         return KCParentGate(datetime)
 
-    elif "subscription" in event_name:
-        return KCSubStart(sub_name=event_name[29:],datetime=datetime)
+
 
     # парсинг событий сбора подарка
     elif event_name == "Tap_present":

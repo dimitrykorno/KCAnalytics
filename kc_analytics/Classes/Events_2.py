@@ -410,10 +410,11 @@ class EnterSubscriptions(KCEvent):
 
 
 class TapTrialFromAirship(KCEvent):
-    __slots__ = ''
+    __slots__ = 'action'
 
     def __init__(self, snum, datetime):
         super().__init__(snum, datetime)
+        self.action="default"
 
 
 class SettingsEnterSubscriptions(KCEvent):
@@ -447,11 +448,11 @@ class SettingsChangeLoc(KCEvent):
 
 
 class SettingsTapRestore(KCEvent):
-    __slots__ = ''
+    __slots__ = 'action'
 
     def __init__(self, snum, datetime):
         super().__init__(snum, datetime)
-
+        self.action="default"
 
 class SettingsRestore(KCEvent):
     __slots__ = 'status'
@@ -470,24 +471,26 @@ class SettingsShowQuestion(KCEvent):
 
 
 class SettingsTapLike(KCEvent):
-    __slots__ = ''
+    __slots__ = 'action'
 
     def __init__(self, snum, datetime):
         super().__init__(snum, datetime)
+        self.action = "default"
 
 
 class ParentGatePassed(KCEvent):
-    __slots__ = ''
+    __slots__ = 'action'
 
     def __init__(self, snum, datetime):
         super().__init__(snum, datetime)
-
+        self.action = "default"
 
 class SettingsTapAuthorization(KCEvent):
-    __slots__ = ''
+    __slots__ = 'action'
 
     def __init__(self, snum, datetime):
         super().__init__(snum, datetime)
+        self.action = "default"
 
 
 class SettingsTryLogIn(KCEvent):

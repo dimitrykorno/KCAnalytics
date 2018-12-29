@@ -15,6 +15,7 @@ class KCEvent(Event):
 class KCSubStart(KCEvent):
     def __init__(self, sub_name, datetime):
         super().__init__(sub_name, datetime)
+        self.price=0
 
 class KCReadEvent(KCEvent):
     def __init__(self, book_name, datetime):
