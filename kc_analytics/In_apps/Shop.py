@@ -1,9 +1,6 @@
 import re
 from report_api.Report import Report
 from In_apps.book_names import BooksShelf
-from report_api.Utilities.Utils import time_medium
-from report_api.Classes.Events import PurchaseEvent
-from Classes.Events import *
 
 
 def get_price(in_app):
@@ -18,7 +15,7 @@ def get_price(in_app):
 
     else:
 
-        Report.not_found.add("Error: No '", check_inapp_name(in_app), "' in in-apps list.")
+        Report.not_found.add("Shop Error: No '" + check_inapp_name(in_app) + "' in in-apps list.")
     return 0
 
 
@@ -32,7 +29,7 @@ def get_brand(book):
                     if book in books_list:
                         return brand
 
-    Report.not_found.add("Error getting category: No '" + book + "' in list.")
+    Report.not_found.add("Shop Error: No '" + book + "' in in-apps list.")
     return None
 
 
@@ -49,15 +46,15 @@ def get_lang(book):
                     if book in books_list:
                         return lang
 
-    Report.not_found.add("Error getting language: No '" + book + "' in list.")
+    Report.not_found.add("Shop Error: No '" + book + "' in in-apps list.")
     return None
 
 
 def get_brand_lang_inapp(book):
     if book in _in_apps:
         return _in_apps[book][2], get_lang(book)
-    Report.not_found.add("Error getting inapp brand/lang: No '" + book + "' in list.")
-    return "None", "None"
+    Report.not_found.add("Shop Error: No '" + book + "' in in-apps list.")
+    return None, "None"
 
 
 def get_brand_lang_book(book):
@@ -71,7 +68,7 @@ def get_brand_lang_book(book):
     if book in BooksShelf.inverted_collection_dict:
         return BooksShelf.inverted_collection_dict[book]
 
-    Report.not_found.add("Error getting book brand/lang: No '" + book + "' in list.")
+    Report.not_found.add("Shop Error: No '" + book + "' in books list.")
     return "None", "None"
 
 
@@ -81,7 +78,7 @@ def get_brand_lang_free_book(book):
     if book in BooksShelf.inverted_free_books_dict:
         return BooksShelf.inverted_free_books_dict[book]
 
-    Report.not_found.add("Error getting free book brand/lang: No '" + book + "' in list.")
+    Report.not_found.add("Shop Error: No '" + book + "' in books list.")
     return "None", "None"
 
 
@@ -104,7 +101,7 @@ def get_brand_lang(book):
     if book in BooksShelf.inverted_collection_dict:
         return BooksShelf.inverted_collection_dict[book]
 
-    Report.not_found.add("Error getting book brand/lang: No '" + book + "' in list.")
+    Report.not_found.add("Shop Error: No '" + book + "' in in-apps list.")
     return "None", "None"
 
 
@@ -113,13 +110,13 @@ def check_inapp_name(in_app):
     if not cat:
         cat = get_brand_lang_inapp(in_app)[0]
     if not cat:
-        Report.not_found.add("Error getting category: No '", in_app, "' in in-apps/collection list.")
+        Report.not_found.add("Shop Error: No '" + in_app + "' in in-apps list.")
     if re.match(r'.*\.eng$', in_app):
         in_app = in_app[:len(in_app) - 4] + "_eng"
     if cat and cat != "coins" and not re.match(r'^' + cat + '.', in_app):
         return cat + '.' + in_app
     if cat is None:
-        Report.not_found.add("Check_in_app_name. Cat is None: " + cat + " " + in_app)
+        Report.not_found.add("Check_in_app_name. Cat is None: " + in_app)
     return in_app
 
 
@@ -155,7 +152,7 @@ def is_pack(in_app):
     if in_app in _in_apps.keys():
         return len(_in_apps[in_app]) >= 4 and _in_apps[in_app][3] == "pack"
     else:
-        Report.not_found.add("Error checking for pack. Not in in-apps list. " + in_app)
+        Report.not_found.add("Shop Error " + in_app)
         return False
 
 
@@ -206,6 +203,13 @@ _in_apps = {
     "fixies.flashlight_eng": (139, 149, "fixies"),
     "fixies.reflexes_eng": (139, 149, "fixies"),
     "fixies.solarbattery_eng": (139, 149, "fixies"),
+    "fixies.draintermos": (149, 149, "fixies"),
+    "fixies.drain": (75, 75, "fixies"),
+    "fixies.friction": (75, 75, "fixies"),
+    "fixies.siphon": (75, 75, "fixies"),
+    "fixies.thermos": (75, 75, "fixies"),
+    "fixies.tools": (75, 75, "fixies"),
+    # "": (, , "fixies"),
     # "": (, , "fixies"),
     # "": (, , "fixies"),
 
@@ -234,6 +238,11 @@ _in_apps = {
     "fixies.9in1": (690, 699, "fixies", "pack"),
     "fixies.9in1_discount": (499, 529, "fixies", "pack"),
     "fixies.10in1": (699, 699, "fixies", "pack"),
+    "fixies.staplernfriction": (149, 149, "fixies", "pack"),
+    "fixies.10in1.without.cellphone": (699, 699, "fixies", "pack"),
+    # "": (, , "fixies", "pack"),
+    # "": (, , "fixies", "pack"),
+    # "": (, , "fixies", "pack"),
     # "": (, , "fixies", "pack"),
 
     "fixies.reflexesncompass_eng": (279, 299, "fixies", "pack"),
@@ -250,7 +259,9 @@ _in_apps = {
     "fixies.9in1_eng": (1099, None, "fixies", "pack"),  #######???????
 
     # "": (, , "fixies", "pack"),
-
+    # "": (, , "fixies", "pack"),
+    # "": (, , "fixies", "pack"),
+    # "": (, , "fixies", "pack"),
 
 
     # ////////////////////// MISHKI //////////////////////
@@ -278,10 +289,11 @@ _in_apps = {
     "mishki.gardeners": (85, 75, "mishki"),
     "honeystory": (85, 75, "mishki"),
     "mishki.honeystory": (85, 75, "mishki"),
-    # "mishki.weatherforecast": (85, 75, "mishki"), #пока нет, проверить цену
-    # "mishki.snakеontree": (85, 75, "mishki"),
-    # "mishki.finish": (85, 75, "mishki"),
-    # "mishki.piratestory": (85, 75, "mishki"),
+    "mishki.weatherforecast": (85, 75, "mishki"),
+    "weather": (85, 75, "mishki"),
+    "mishki.snakеontree": (85, 75, "mishki"),
+    "mishki.finish": (85, 75, "mishki"),
+    "mishki.piratestory": (85, 75, "mishki"),
 
     # "mishki.mushroomsleaves.eng": (139, 149, "mishki"),
     "mishki.mushroomsleaves_eng": (139, 149, "mishki"),
@@ -312,8 +324,10 @@ _in_apps = {
     # "mishki.insomnia.eng": (139, 149, "mishki"),
     "mishki.insomnia_eng": (139, 149, "mishki"),
 
-    # "": (, , "mishki"),
-    # "": (, , "mishki"),
+    "finish": (75, 75, "mishki"),
+    "kite": (75, 75, "mishki"),
+    "mishki.weather": (75, 75, "mishki"),
+"mishki.kite": (75, 75, "mishki"),
 
     # ///////////////////// MISHKI Packs /////////////////////
     "mushroomsnleavesnphotohunt": (179, 149, "mishki", "pack"),
@@ -383,6 +397,10 @@ _in_apps = {
     "9in1_discount_eng": (899, 899, "mishki", "pack"),
     "mishki.9in1_discount_eng": (899, 899, "mishki", "pack"),
 
+    "mishki.4in1.part2": (229, 229, "mishki", "pack"),
+    "weatherforecastnsnake": (149, 149, "mishki", "pack"),
+    "mishki.weatherforecastnsnake": (149, 149, "mishki", "pack"),
+    # "": (, , "mishki", "pack"),
     # "": (, , "mishki", "pack"),
     # "": (, , "mishki", "pack"),
 
@@ -438,6 +456,12 @@ _in_apps = {
     # "": (,,"spookystories", "pack"),
     # "": (,,"spookystories", "pack"),
 
+    "mim.circus": (75, 75, "mim"),
+    "mim.appetite": (75, 75, "mim"),
+    # "": (,,"mim"),
+    # "": (,,"mim"),
+    # "": (,,"mim"),
+    # "": (,,"mim"),
 
     # ////////////////////// OMNOM //////////////////////
     "omnom.yarmarka": (75, 75, "omnom"),
@@ -457,8 +481,17 @@ _in_apps = {
     "omnom.australia_eng": (139, 149, "omnom"),
     "omnom.brazil_eng": (139, 149, "omnom"),
 
+    "omnom.mexico_eng": (139, 149, "omnom"),
+    "omnom.receipt_eng": (159, 149, "omnom"),
+    "omnom.shopping_eng": (159, 149, "omnom"),
+    "omnom.sport_eng": (159, 149, "omnom"),
+    "omnom.tea_eng": (159, 149, "omnom"),
+    "omnom.usa_eng": (139, 149, "omnom"),
+    "omnom.velogonka_eng": (159, 149, "omnom"),
     # "": (,,"omnom"),
     # "": (,,"omnom"),
+    # "": (,,"omnom"),
+
 
     # //////////////////// OMNOM Packs////////////////////
     "omnom.christmas.yarmarka": (179, 149, "omnom", "pack"),
@@ -469,14 +502,21 @@ _in_apps = {
     "omnom.4in1": (359, 299, "omnom", "pack"),
     "omnom.10in1": (699, 699, "omnom", "pack"),
     "omnom.sportshopping": (159, 149, "omnom", "pack"),
+    "omnom.9in1_discount": (599, 599, "omnom", "pack"),
     # "": (,,"omnom", "pack"),
     # "": (,,"omnom", "pack"),
+    # "": (,,"omnom", "pack"),
+    # "": (,,"omnom", "pack"),  \# "": (,,"omnom", "pack"),
+    # "": (,,"omnom", "pack"),
+    # "": (,,"omnom", "pack"),
+    # "": (,,"omnom", "pack"),
+    # "": (,,"omnom", "pack"),
+
 
 
     "omnom.3in1_eng": (439, 379, "omnom", "pack"),
     "omnom.australianbrazil_eng": (279, 299, "omnom", "pack"),
-    # "": (,,"omnom", "pack"),
-
+    "omnom.10in1_eng": (1199, 1190, "omnom", "pack"),
 
     # ////////////////////// TRI KOTA //////////////////////
     "trikota.velosiped": (75, 75, "trikota",),
