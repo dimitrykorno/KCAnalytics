@@ -1,5 +1,7 @@
+import matplotlib
+matplotlib.use('Agg')
 from report_api.Menu import Menu
-from Reports import InAppSales, ContentActivity, ActiveUsers, CumulativeROI, BooksPopularity, SalesGraphs_TOREMOVE, LifetimeHistogram
+from Reports import InAppSales, ContentActivity, ActiveUsers, CumulativeROI, BooksPopularity, SalesGraphs_TOREMOVE, LifetimeHistogram,Subscriptions
 
 # import timeit
 #
@@ -16,7 +18,8 @@ reports = [
     ("4. Часто заходящие пользователи", ActiveUsers.new_report),
     ("5. Накопительный ROI", CumulativeROI.new_report),
     ("6. Популярность книг", BooksPopularity.new_report),
-    ("7. Гистограма лайфтайма", LifetimeHistogram.new_report)
+    ("7. Гистограма лайфтайма", LifetimeHistogram.new_report),
+    ("8. Анализ подписок",Subscriptions.new_report)
 ]
 
 if __name__ == '__main__':
